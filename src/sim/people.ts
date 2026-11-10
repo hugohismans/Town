@@ -531,8 +531,10 @@ function encounters(world: World, R: Rng): void {
       const r = p.rel.find((x) => x.id === o.id);
       const soc = Math.min(p.traits.soc, o.traits.soc);
       const late = (p.act === 'work' && p.traits.punct > 0.5) || (o.act === 'work' && o.traits.punct > 0.5);
-      const prob = (r ? 0.2 + 0.55 * soc + r.aff * 0.2 : 0.004 + 0.02 * p.traits.soc * o.traits.soc) * (late ? 0.25 : 1);
-      if (!R.chance(prob)) continue;
+      const prob = (r ? 0.2 + 0.55 * soc + r.aff * 0.2 : 0.002 + 0.012 * p.traits.soc * o.traits.soc) * (late ? 0.25 : 1);
+      // Qui tient une rumeur a une bonne raison d'aborder les gens.
+      const carrier = p.rumor && t < p.rumor.until && !o.rumor ? p : o.rumor && t < o.rumor.until && !p.rumor ? o : null;
+      if (!R.chance(carrier && !late ? Math.max(prob, 0.12 + 0.3 * carrier.traits.soc) : prob)) continue;
       const len = R.between(35, 95);
       p.chatUntil = o.chatUntil = t + len;
       converse(world, p, o, R);
@@ -551,9 +553,30 @@ function venueChat(world: World, p: Person, R: Rng): void {
   const o = state.people[occ[R.int(occ.length)]!]!;
   if (o.id === p.id || !o.doing || o.act === 'sleep' || o.act === 'hospital') return;
   const r = p.rel.find((x) => x.id === o.id);
-  if (!r && !R.chance(0.01 + 0.05 * p.traits.soc * o.traits.soc)) return;
+  if (!r && !R.chance(0.006 + 0.03 * p.traits.soc * o.traits.soc)) return;
   p.chatUntil = o.chatUntil = state.tick + R.between(30, 70);
   converse(world, p, o, R);
+}
+
+/** Au travail, à la maison, au café : celui qui sait quelque chose le répète. */
+function gossip(world: World, p: Person, R: Rng): void {
+  const { state, rt, city } = world;
+  const t = state.tick;
+  const rumor = p.rumor;
+  if (!rumor || t >= rumor.until || rumor.hops >= 4) return;
+  const occ = rt.occupants[p.at]!;
+  if (occ.length < 2) return;
+  const o = state.people[occ[R.int(occ.length)]!]!;
+  if (o.id === p.id || (o.act === 'sleep' && o.doing) || o.act === 'hospital' || (o.rumor && o.rumor.id === rumor.id)) return;
+  if (!R.chance(0.25 + 0.5 * p.traits.soc)) return;
+  o.rumor = { id: rumor.id, dest: rumor.dest, hops: rumor.hops + 1, until: rumor.until };
+  o.think = Math.min(o.think, t + 30);
+  p.chatWith = o.id;
+  o.chatWith = p.id;
+  p.chatUntil = o.chatUntil = t + 30;
+  const info = state.rumors.find((r) => r.id === rumor.id);
+  if (info) info.heard++;
+  note(world, o, `Apprend par ${p.first} qu'il se passerait quelque chose ${at(city.buildings[rumor.dest]!.name)}.`);
 }
 
 export function updatePeople(world: World, R: Rng): void {
@@ -608,6 +631,7 @@ export function updatePeople(world: World, R: Rng): void {
           }
         }
         if ((a === 'social' || a === 'leisure' || a === 'eatOut' || a === 'curious' || a === 'visit') && t >= p.chatUntil && (t + p.id * 7) % 90 === 0) venueChat(world, p, R);
+        if (p.rumor && a !== 'sleep' && t >= p.chatUntil && (t + p.id * 11) % 100 === 0) gossip(world, p, R);
       }
       if (t >= p.think || (p.doing && t >= p.until && p.act !== 'hospital')) decide(world, p, R);
     } else if (p.loc === LOC_WALK) {

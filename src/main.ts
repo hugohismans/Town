@@ -25,14 +25,21 @@ if (!playerId) {
   store.set(PLAYER_KEY, playerId);
 }
 
+/** Nouvelle ville, avancée jusqu'à 7 h : on arrive au moment où elle s'éveille. */
+function fresh(seed: number): World {
+  const w = createWorld(seed);
+  if (params.get('dawn') === null) for (let i = 0; i < 310; i++) step(w);
+  return w;
+}
+
 function load(): World {
   const forced = params.get('seed');
-  if (forced !== null) return createWorld(/^-?\d+$/.test(forced) ? Number(forced) | 0 : seedFromString(forced));
+  if (forced !== null) return fresh(/^-?\d+$/.test(forced) ? Number(forced) | 0 : seedFromString(forced));
   const saved = store.get(SAVE_KEY);
   if (saved) {
     try { return restore(saved); } catch (err) { console.warn('Sauvegarde illisible, nouvelle ville.', err); }
   }
-  return createWorld(2026);
+  return fresh(2026);
 }
 
 let world: World = load();
@@ -72,7 +79,7 @@ const ui = new Ui(document.getElementById('ui') as HTMLElement, {
   following: () => follow,
   newCity: (name) => {
     const seed = name ? seedFromString(name) : (Math.random() * 0x7fffffff) | 0;
-    world = createWorld(seed);
+    world = fresh(seed);
     selection = null;
     follow = false;
     renderer.setWorld(world);
