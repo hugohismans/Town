@@ -1,0 +1,42 @@
+:root {
+  --paper: #fbf6ea;
+  --paper-2: #f3ebd9;
+  --ink: #2f2a25;
+  --ink-2: #6f665b;
+  --line: rgba(60, 45, 25, 0.14);
+  --accent: #d9634a;
+  --accent-2: #3f8f6b;
+  --gold: #e2a03f;
+  --shadow: 0 6px 24px rgba(40, 30, 15, 0.18), 0 1px 3px rgba(40, 30, 15, 0.12);
+  --radius: 14px;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  color: var(--ink);
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #bfe3f4;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+#city {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#city:active { cursor: grabbing; }
+#ui { position: fixed; inset: 0; pointer-events: none; }
+#ui > * { pointer-events: auto; }
