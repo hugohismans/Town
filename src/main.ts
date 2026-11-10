@@ -123,12 +123,23 @@ let last = performance.now();
 let fps = 60;
 let uiClock = 0;
 let saveClock = 0;
+let slow = 0;
+let counted = 0;
 
 function frame(now: number): void {
   const dt = Math.min(250, now - last);
   last = now;
   fps += (1000 / Math.max(1, dt) - fps) * 0.05;
   input.update(dt);
+  // Garde-fou : si l'appareil peine durablement, on baisse la densité de pixels.
+  if (dt < 120) {
+    counted++;
+    if (dt > 22) slow++;
+    if (counted >= 150) {
+      if (slow > 90 && renderer.maxDpr > 1) { renderer.maxDpr = Math.max(1, renderer.maxDpr - 0.5); renderer.resize(); }
+      counted = slow = 0;
+    }
+  }
 
   // Pas fixe : la simulation avance par ticks entiers, le rendu interpole entre deux ticks.
   acc += (dt / 1000) * TICKS_PER_SEC * speed;

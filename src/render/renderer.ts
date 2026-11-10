@@ -62,11 +62,13 @@ export class Renderer {
   private hn = 0;
   day: Daylight = daylight(600);
   stats = { drawn: 0, ms: 0 };
+  /** Plafond de densité de pixels ; abaissé si l'appareil peine. */
+  maxDpr = 2;
 
   constructor(private canvas: HTMLCanvasElement, world: World) {
     this.ctx = canvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D;
     this.mobile = Math.min(window.innerWidth, window.innerHeight) < 700;
-    this.sprites = new SpriteCache(this.mobile ? 9e6 : 22e6);
+    this.sprites = new SpriteCache(this.mobile ? 14e6 : 30e6);
     this.glow = makeGlow();
     this.setWorld(world);
   }
@@ -109,7 +111,7 @@ export class Renderer {
   }
 
   resize(): boolean {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, this.maxDpr);
     const w = this.canvas.clientWidth;
     const h = this.canvas.clientHeight;
     if (this.canvas.width === Math.round(w * dpr) && this.canvas.height === Math.round(h * dpr) && dpr === this.dpr) return false;
@@ -230,7 +232,7 @@ export class Renderer {
       if (b.kind === 'house' || b.kind === 'apartment') {
         let awake = 0;
         for (const id of occ) { const p = state.people[id]!; if (!(p.act === 'sleep' && p.doing)) awake++; }
-        level = awake === 0 ? 0 : b.kind === 'house' ? 0.75 : Math.min(1, 0.15 + (awake / Math.max(1, b.units * 1.6)) * 0.85);
+        level = awake === 0 ? 0 : b.kind === 'house' ? 0.85 : Math.min(1, 0.15 + (awake / Math.max(1, b.units * 1.6)) * 0.85);
       } else if (b.kind === 'hospital') level = 0.55;
       else if (b.kind === 'office' || b.kind === 'school' || b.kind === 'townhall' || b.kind === 'garage') level = occ.length ? Math.min(1, 0.15 + occ.length / Math.max(1, b.jobs)) : 0.03;
       else level = isOpen(b, minute) ? 0.95 : 0.04;

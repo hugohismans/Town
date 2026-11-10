@@ -17,7 +17,7 @@ interface Op {
 }
 
 const CHUNK = 512;
-const GROUND_BUCKETS = [8, 16, 32, 64, 128];
+const GROUND_BUCKETS = [8, 16, 32, 64, 128, 256];
 
 const C = {
   grass: '#a7cf7c', grass2: '#9fc874', garden: ['#93c773', '#8cc26f', '#9bcc78'], park: '#8fcf7c',
@@ -198,7 +198,7 @@ export class Ground {
     const need = cam.zoom * dpr;
     const ox = cam.w / 2 - (cam.x - cam.y) * cam.zoom * 0.5;
     const oy = cam.h / 2 - (cam.x + cam.y) * cam.zoom * 0.25;
-    if (need > 150) {
+    if (need > 300) {
       // Dessin direct : peu de tuiles visibles, netteté parfaite.
       const hw = cam.zoom * 0.5, hh = cam.zoom * 0.25;
       ctx.save();

@@ -17,12 +17,13 @@ export interface Sprite {
 interface Entry {
   slices: Sprite[];
   px: number;
+  frame: number; // dernière image où l'entrée a servi
 }
 
-export const BUCKETS = [8, 16, 32, 64, 128, 256, 384];
+export const BUCKETS = [8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384];
 
 export function bucketFor(need: number): number {
-  for (const b of BUCKETS) if (b >= need * 0.8) return b;
+  for (const b of BUCKETS) if (b >= need * 0.85) return b;
   return BUCKETS[BUCKETS.length - 1] as number;
 }
 
@@ -51,21 +52,27 @@ export class SpriteCache {
   private pixels = 0;
   /** Temps de génération consommé pendant l'image courante (ms). */
   spent = 0;
+  /** Niveau de détail maximal ; abaissé si le budget mémoire ne suffit pas à l'écran courant. */
+  maxBucket = BUCKETS[BUCKETS.length - 1] as number;
+  private frame = 0;
   constructor(private budget: number) {}
 
   beginFrame(): void {
     this.spent = 0;
+    this.frame++;
   }
   peek(id: string, bucket: number): Sprite[] | null {
     const key = `${id}@${bucket}`;
     const e = this.map.get(key);
     if (!e) return null;
+    e.frame = this.frame;
     this.map.delete(key);
     this.map.set(key, e);
     return e.slices;
   }
   /** Sprite au bon niveau ; sinon le meilleur disponible pendant que le budget de l'image est épuisé. */
   get(id: string, model: Model, bucket: number, sliced: boolean, maxMs = 5): Sprite[] | null {
+    if (bucket > this.maxBucket) bucket = this.maxBucket;
     const hit = this.peek(id, bucket);
     if (hit) return hit;
     if (this.spent > maxMs) {
@@ -79,7 +86,7 @@ export class SpriteCache {
     const slices = this.make(model, bucket, sliced);
     let px = 0;
     for (const s of slices) px += s.day.width * s.day.height;
-    this.map.set(`${id}@${bucket}`, { slices, px });
+    this.map.set(`${id}@${bucket}`, { slices, px, frame: this.frame });
     this.pixels += px;
     this.evict();
     this.spent += performance.now() - t;
@@ -99,19 +106,28 @@ export class SpriteCache {
       ctx.drawImage(s.day, 0, 0);
       s.night = c;
       this.pixels += c.width * c.height;
+      this.evict();
     }
     return s.night;
   }
   clear(): void {
     this.map.clear();
     this.pixels = 0;
+    this.maxBucket = BUCKETS[BUCKETS.length - 1] as number;
   }
   private evict(): void {
+    if (this.pixels <= this.budget) return;
     for (const [key, e] of this.map) {
-      if (this.pixels <= this.budget) break;
+      if (this.pixels <= this.budget) return;
+      if (e.frame === this.frame) continue; // encore à l'écran : on n'y touche pas
       this.map.delete(key);
       this.pixels -= e.px;
       for (const s of e.slices) if (s.night) this.pixels -= s.night.width * s.night.height;
+    }
+    // Tout ce qui reste est visible et dépasse le budget : on se contentera d'un niveau plus grossier.
+    if (this.pixels > this.budget * 1.3) {
+      const i = BUCKETS.indexOf(this.maxBucket);
+      if (i > 6) this.maxBucket = BUCKETS[i - 1] as number;
     }
   }
   private make(model: Model, unit: number, sliced: boolean): Sprite[] {

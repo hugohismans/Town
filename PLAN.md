@@ -1,7 +1,7 @@
 # Ville vivante : plan
 
-Une petite ville isométrique, générée à partir d'une graine, où ~300 habitants
-vivent seuls. Le joueur est un esprit qui souffle des idées ; il ne pilote
+Une petite ville isométrique, générée à partir d'une graine, où environ 420
+habitants vivent seuls. Le joueur est un esprit qui souffle des idées ; il ne pilote
 personne. Ce document fixe l'architecture, le modèle de données, les commandes
 et les étapes. Les décisions prises sans consigne sont listées à la fin.
 
@@ -19,16 +19,17 @@ src/
     path.ts       plus courts chemins (trottoirs, voies)
     popgen.ts     foyers, emplois, relations, voitures
     people.ts     besoins, IA à utilité, marche, conversations, rumeurs
+    query.ts      lectures pour le rendu et l'interface (activité, pensée)
     traffic.ts    voitures, priorités, feux, accidents, secours
     commands.ts   validation + application des commandes, influence
     chronicle.ts  fil d'événements en français
     world.ts      createWorld, step, snapshot, restore, hash
     index.ts      API publique
   render/     lit l'état, ne le modifie jamais
-    camera.ts, daylight.ts, models.ts (bâtiments en vectoriel),
+    camera.ts, color.ts, daylight.ts, models.ts (bâtiments en vectoriel),
     sprites.ts (cache par niveau de zoom), ground.ts, entities.ts, renderer.ts
   ui/         produit des commandes, ne modifie jamais l'état
-    input.ts (souris, molette, tactile), hud.ts, panels.ts, style.css
+    input.ts (souris, molette, tactile), ui.ts, style.css
   main.ts     boucle : pas fixe 10 ticks/s, rendu interpolé, sauvegarde
 tests/        Vitest sur sim/ (déterminisme, accident, commandes, génération)
 ```
@@ -107,7 +108,8 @@ renvoyée au joueur et notée dans son journal.
 
 ## Décisions prises sans consigne
 
-- **Carte** : grille 58×58, rues orthogonales à espacement irrégulier, quelques
+- **Carte** : grille 46×46 (assez compacte pour que 420 habitants la fassent
+  vivre, la consigne était « 300, plus si ça tient »), rues orthogonales à espacement irrégulier, quelques
   tronçons retirés pour casser le damier, un boulevard de ceinture, deux
   avenues, et un canal traversé par quelques ponts (goulots naturels : c'est là
   que naissent les bouchons).
@@ -133,5 +135,8 @@ renvoyée au joueur et notée dans son journal.
 - **Rendu** : bâtiments dessinés en vectoriel une fois puis mis en cache par
   niveau de zoom ; tri en profondeur exact (bâtiments découpés par rangée).
   Nuit par variantes assombries + fenêtres et lampadaires. DPR plafonné à 2.
+- **Trajets** : chaque habitant connaît la durée de son trajet domicile-travail
+  (détour par les ponts compris) et la corrige après chaque trajet réel ; les
+  retards restants viennent des bouchons, des accidents et des étourdis.
 - **Sauvegarde** : seul l'état dynamique est stocké (la ville se régénère de la
   graine), ce qui tient largement dans localStorage.
