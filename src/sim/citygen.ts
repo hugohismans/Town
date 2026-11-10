@@ -505,6 +505,15 @@ export function generateCity(seed: number): City {
     used.set(name, n);
     return n === 1 ? name : `${name} ${['', '', 'bis', 'ter', 'IV', 'V', 'VI', 'VII'][n] ?? n}`;
   };
+  /** Un nom encore libre dans la liste, si possible. */
+  const fresh = (pool: readonly string[], r: Rng) => {
+    const start = r.int(pool.length);
+    for (let k = 0; k < pool.length; k++) {
+      const name = pool[(start + k) % pool.length]!;
+      if (!used.has(name)) return uniq(name);
+    }
+    return uniq(pool[start]!);
+  };
   const street = (b: Building) => (lines[b.line] as RoadLine).name;
   let houseNo = 0;
   for (const b of buildings) {
@@ -525,7 +534,7 @@ export function generateCity(seed: number): City {
         b.floors = area === 4 ? r.between(4, b.district === 0 ? 8 : 5) : area === 2 ? r.between(3, 5) : r.between(2, 3);
         b.jobs = area === 4 ? 13 : area === 2 ? 8 : 4;
         b.openFrom = 7 * 60; b.openTo = 20 * 60;
-        b.name = uniq(r.pick(N.OFFICES));
+        b.name = fresh(N.OFFICES, r);
         break;
       case 'shop': {
         const t = N.SHOPS[b.variant % N.SHOPS.length] as [string, string];
@@ -533,27 +542,27 @@ export function generateCity(seed: number): City {
         b.jobs = 2;
         b.openFrom = t[0] === 'Boulangerie' ? 6 * 60 + 30 : 9 * 60;
         b.openTo = 19 * 60 + 30;
-        b.name = uniq(`${t[0]} ${r.pick(N.SHOP_SUFFIX)}`);
+        b.name = fresh(N.SHOP_SUFFIX.map((x) => `${t[0]} ${x}`), r);
         break;
       }
       case 'cafe':
         b.floors = r.chance(0.5) ? 2 : 1; b.jobs = 3; b.openFrom = 7 * 60; b.openTo = 22 * 60;
-        b.name = uniq(r.pick(N.CAFES));
+        b.name = fresh(N.CAFES, r);
         break;
       case 'restaurant':
         b.floors = r.chance(0.5) ? 2 : 1; b.jobs = 4; b.openFrom = 11 * 60; b.openTo = 23 * 60;
-        b.name = uniq(r.pick(N.RESTAURANTS));
+        b.name = fresh(N.RESTAURANTS, r);
         break;
       case 'bar':
         b.floors = 2; b.jobs = 3; b.openFrom = 17 * 60; b.openTo = 26 * 60;
-        b.name = uniq(r.pick(N.BARS));
+        b.name = fresh(N.BARS, r);
         break;
       case 'hospital':
         b.floors = 4; b.jobs = 18; b.name = `Hôpital ${r.pick(N.SAINTS)}`;
         break;
       case 'school':
         b.floors = 2; b.jobs = 8; b.openFrom = 7 * 60 + 30; b.openTo = 17 * 60;
-        b.name = uniq(r.pick(N.SCHOOLS));
+        b.name = fresh(N.SCHOOLS, r);
         break;
       case 'townhall':
         b.floors = 2; b.jobs = 7; b.openFrom = 8 * 60 + 30; b.openTo = 17 * 60 + 30; b.name = 'Mairie';
@@ -566,7 +575,7 @@ export function generateCity(seed: number): City {
         break;
       case 'park':
         b.floors = 0; b.openFrom = 6 * 60; b.openTo = 22 * 60;
-        b.name = uniq(r.pick(N.PARKS));
+        b.name = fresh(N.PARKS, r);
         break;
     }
   }

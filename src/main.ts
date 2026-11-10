@@ -27,12 +27,13 @@ function frame(now: number): void {
   acc += (dt / 1000) * TICKS_PER_SEC * speed;
   let n = 0;
   while (acc >= 1 && n < 64) {
+    renderer.capture(world);
     step(world);
     acc -= 1;
     n++;
   }
   if (acc > 4) acc = 0;
-  renderer.render(world, { alpha: Math.min(1, acc), timeMs: now });
+  renderer.render(world, { alpha: Math.min(1, acc), timeMs: now, selection: null, labels: true });
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

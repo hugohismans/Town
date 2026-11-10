@@ -26,6 +26,7 @@ export const SPEED_STREET = 0.2;
 export const SPEED_AVENUE = 0.26;
 export const SPEED_SIREN = 0.3;
 export const CAR_WALK_LIMIT = 9; // au-delà (en tuiles), on prend la voiture
+export const CARS_ENABLED = false; // étape b : tout le monde marche
 
 // --- Piétons ---
 export const WALK_SPEED = 0.07;

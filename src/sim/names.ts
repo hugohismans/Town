@@ -50,11 +50,27 @@ export const SHOPS: [string, string][] = [
   ['Boucherie', 'boucher'], ['Mercerie', 'mercier'], ['Cordonnerie', 'cordonnier'], ['Papeterie', 'papetier'],
 ];
 export const SHOP_SUFFIX = ['du Coin', 'des Halles', 'du Canal', 'Centrale', 'des Amis', 'du Marché', 'de la Place', 'du Pont', 'Moderne', 'des Quatre-Saisons'];
-export const CAFES = ['Café des Tilleuls', 'Le Petit Zinc', 'Café du Canal', 'Chez Lucie', 'Le Moka', 'Café de la Mairie', 'Le Bon Coin', 'Aux Deux Tasses', 'Le Lézard', 'Café des Arts', "L'Abri", 'Le Tournesol'];
-export const RESTAURANTS = ['Chez Marcel', 'La Bonne Table', 'Le Bouchon', 'La Marmite', "L'Assiette", 'Le Vieux Four', 'La Tablée', 'Bistrot du Quai', 'Le Potager', 'La Cocotte'];
-export const BARS = ['Le Hibou', 'Bar du Port', 'La Dernière Séance', 'Le Phare', 'Le Zèbre'];
-export const OFFICES = ['Atelier Numérique', 'Cabinet Lemoine', 'Assurances du Canal', 'Studio Hélice', 'Comptoir Général', 'Bureau des Cartes', 'Maison Vernier', 'Agence Horizon', 'La Fabrique', 'Éditions du Quai', 'Cabinet Roussel', 'Banque Populaire du Val', 'Imprimerie Nouvelle', 'Laboratoire Kepler', 'Coopérative des Moulins', 'Agence Boussole'];
+export const CAFES = ['Café des Tilleuls', 'Le Petit Zinc', 'Café du Canal', 'Chez Lucie', 'Le Moka', 'Café de la Mairie', 'Le Bon Coin', 'Aux Deux Tasses', 'Le Lézard', 'Café des Arts', "L'Abri", 'Le Tournesol', 'Café du Pont', 'Le Balto', 'Chez Simone', 'Le Comptoir', 'Café de la Poste', 'Le Square', 'Aux Bons Amis', 'Le Petit Noir', 'Café des Sports', 'La Civette', 'Chez Odile', 'Le Zinc Bleu'];
+export const RESTAURANTS = ['Chez Marcel', 'La Bonne Table', 'Le Bouchon', 'La Marmite', "L'Assiette", 'Le Vieux Four', 'La Tablée', 'Bistrot du Quai', 'Le Potager', 'La Cocotte', 'Chez Fernand', 'Le Relais', 'La Petite Cuillère', 'Le Garde-Manger', 'Aux Trois Poêles', 'La Table Ronde', 'Le Bistrot des Halles', 'Chez Josiane'];
+export const BARS = ['Le Hibou', 'Bar du Port', 'La Dernière Séance', 'Le Phare', 'Le Zèbre', 'Le Minuit', 'La Lanterne', 'Le Perroquet', 'Le Tonneau', 'La Cave'];
+export const OFFICES = ['Atelier Numérique', 'Cabinet Lemoine', 'Assurances du Canal', 'Studio Hélice', 'Comptoir Général', 'Bureau des Cartes', 'Maison Vernier', 'Agence Horizon', 'La Fabrique', 'Éditions du Quai', 'Cabinet Roussel', 'Banque Populaire du Val', 'Imprimerie Nouvelle', 'Laboratoire Kepler', 'Coopérative des Moulins', 'Agence Boussole', 'Cabinet Faure', 'Ateliers Réunis', 'Maison Lambert', 'Bureau Central', 'Studio Parallèle', 'Mutuelle du Canal', 'Agence Mercure', 'Compagnie des Eaux', 'Cabinet Girard', 'Institut Pasteur-Canal', 'Éditions Hirondelle', 'Société Générale du Val', 'Atelier Graphite', 'Notaires Associés', 'La Ruche', 'Comptoir des Tisseurs', 'Agence Lumen', 'Bureau Vernet', 'Maison Dubreuil', 'Les Messageries'];
 export const OFFICE_JOBS = ['comptable', 'graphiste', 'ingénieur', 'juriste', 'secrétaire', 'commercial', 'architecte', 'développeur', 'éditeur', 'analyste', 'assistant', 'chargé de projet'];
 export const PARKS = ['Parc des Tilleuls', 'Jardin public', 'Square Colette', 'Parc du Canal', 'Jardin des Plantes', 'Square des Hirondelles'];
 export const SCHOOLS = ['École Jules-Ferry', 'École Marie-Curie', 'Collège Jean-Moulin'];
 export const SAINTS = ['Saint-Roch', 'Sainte-Anne', 'Saint-Luc'];
+
+/** Féminin des métiers (quand il diffère). */
+const FEM: Record<string, string> = {
+  boulanger: 'boulangère', épicier: 'épicière', pharmacien: 'pharmacienne', fromager: 'fromagère',
+  quincaillier: 'quincaillière', boucher: 'bouchère', mercier: 'mercière', cordonnier: 'cordonnière',
+  papetier: 'papetière', vendeur: 'vendeuse', serveur: 'serveuse', cuisinier: 'cuisinière',
+  infirmier: 'infirmière', 'aide-soignant': 'aide-soignante', ambulancier: 'ambulancière',
+  instituteur: 'institutrice', 'agent municipal': 'agente municipale', ouvreur: 'ouvreuse',
+  mécanicien: 'mécanicienne', dépanneur: 'dépanneuse', ingénieur: 'ingénieure', commercial: 'commerciale',
+  développeur: 'développeuse', éditeur: 'éditrice', assistant: 'assistante', 'chargé de projet': 'chargée de projet',
+  retraité: 'retraitée', collégien: 'collégienne', lycéen: 'lycéenne', écolier: 'écolière', barman: 'barmaid',
+  professeur: 'professeure', caissier: 'caissière', directeur: 'directrice',
+};
+export function jobTitle(title: string, female: boolean): string {
+  return female ? (FEM[title] ?? title) : title;
+}

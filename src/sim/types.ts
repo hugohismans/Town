@@ -198,6 +198,8 @@ export interface Walk {
   nodes: number[]; // nœud piéton de chaque point, -1 pour une porte
   xw: number[]; // xw[i] = passage emprunté entre le point i et i+1, ou -1
   i: number; // prochain point visé
+  from: number; // bâtiment de départ (-1 si parti de la rue)
+  to: number; // bâtiment d'arrivée
 }
 
 export interface Goal {
@@ -206,6 +208,8 @@ export interface Goal {
   person: number; // -1 si aucun
   by: string; // joueur à l'origine, '' si spontané
   until: number; // tick d'expiration
+  w: number; // bonne volonté 0..1 : poids de la suggestion dans la décision
+  since: number; // tick d'arrivée sur place (attente d'un rendez-vous), 0 sinon
 }
 
 export interface Rumor {
@@ -213,6 +217,16 @@ export interface Rumor {
   dest: number;
   hops: number;
   until: number;
+}
+
+export interface RumorInfo {
+  id: number;
+  dest: number;
+  by: string;
+  t: number;
+  heard: number; // habitants au courant
+  came: number; // curieux arrivés sur place
+  told: number; // dernier palier annoncé dans la chronique
 }
 
 export interface JournalEntry {
@@ -233,6 +247,8 @@ export interface Person {
   shiftStart: number; // minutes
   shiftEnd: number; // peut dépasser 1440 (équipe de nuit)
   daysOff: number; // masque de bits des jours de repos
+  commute: number; // durée habituelle du trajet domicile-travail (minutes), apprise à l'usage
+  depart: number; // tick de départ du trajet en cours vers le travail, 0 sinon
   traits: Traits;
   needs: Record<NeedKey, number>;
   mood: number; // 0..1
@@ -260,8 +276,11 @@ export interface Person {
   chatUntil: number;
   lastPass: number; // dernier habitant croisé (évite de retirer au sort à chaque tick)
   watch: number; // accident regardé (badaud), -1 sinon
+  watched: number; // dernier accident regardé
+  watchUntil: number;
 
   distractUntil: number;
+  distractBy: string; // joueur à l'origine de la distraction, '' sinon
   hurryUntil: number;
   shockUntil: number;
   cooldownUntil: number; // garde-fou : pas de nouvelle sollicitation avant ce tick
@@ -321,7 +340,9 @@ export interface Accident {
   tow: number;
   ambDone: boolean;
   towDone: boolean;
+  needTow: boolean;
   open: boolean;
+  reported: boolean; // bilan des retards publié
   late: number; // habitants retardés
   clearedAt: number;
 }
@@ -378,6 +399,7 @@ export interface SimState {
   cars: Car[];
   accidents: Accident[];
   pantry: number[]; // par bâtiment (seuls les logements s'en servent)
+  rumors: RumorInfo[];
   chronicle: ChronicleEvent[];
   players: Record<string, PlayerState>;
   queue: Command[];
@@ -396,6 +418,7 @@ export interface Runtime {
   nodeCars: number[][]; // voitures engagées dans chaque carrefour
   xwPeds: number[][]; // piétons en train de traverser, par passage
   nodeBlocked: Uint8Array; // carrefour occupé par un accident
+  edgeBlocked: Uint8Array; // voie occupée par un accident
   sirens: number[]; // véhicules en intervention
 }
 
