@@ -528,7 +528,7 @@ export function generateCity(seed: number): City {
       case 'apartment':
         b.floors = b.district === 0 ? r.between(4, 6) : r.between(3, 5);
         b.units = Math.max(2, Math.round(b.floors * area * 0.4));
-        b.name = uniq(`Résidence ${street(b).replace(/^(rue|avenue|boulevard|quai) /, '')}`);
+        b.name = `Résidence ${fresh(N.RESIDENCES, r)}`;
         break;
       case 'office':
         b.floors = area === 4 ? r.between(4, b.district === 0 ? 8 : 5) : area === 2 ? r.between(3, 5) : r.between(2, 3);
