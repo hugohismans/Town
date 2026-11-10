@@ -3,6 +3,7 @@
 
 import './ui/style.css';
 import { Renderer } from './render/renderer';
+import * as sim from './sim';
 import { TICKS_PER_SEC, createWorld, step, type World } from './sim';
 import { Input } from './ui/input';
 
@@ -45,6 +46,7 @@ Object.assign(window as unknown as Record<string, unknown>, {
     get world() { return world; },
     set world(w: World) { world = w; },
     renderer,
+    sim,
     get fps() { return fps; },
     setSpeed(s: number) { speed = s; },
   },
