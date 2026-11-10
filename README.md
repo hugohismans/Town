@@ -27,6 +27,11 @@ npm run build     # site statique dans dist/ (chemins relatifs)
 Adresses utiles : `?seed=42` ou `?seed=Port-Hugo` force une ville (sans
 toucher à la sauvegarde), `?speed=16` démarre en accéléré.
 
+Outils de mise au point, hors navigateur : `npx vite-node scripts/sim.ts 2026 7200`
+(une journée, avec le fil de la chronique) et `npx vite-node scripts/soak.ts 2026 7`
+(une semaine avec un esprit actif, puis la liste de tout ce qui serait resté
+coincé).
+
 Chaque push sur `main` passe les tests, construit le site et le publie sur
 GitHub Pages (`.github/workflows/deploy.yml`).
 

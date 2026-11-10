@@ -757,7 +757,9 @@ export class Renderer {
     const w = ctx.measureText(text).width + 14;
     ctx.fillStyle = strong ? 'rgba(47,42,37,0.92)' : 'rgba(255,253,246,0.86)';
     ctx.beginPath();
-    ctx.roundRect(x - w / 2, y - 9.5, w, 19, 9.5);
+    // roundRect manque sur les navigateurs un peu anciens : on se contente alors d'un rectangle.
+    if (ctx.roundRect) ctx.roundRect(x - w / 2, y - 9.5, w, 19, 9.5);
+    else ctx.rect(x - w / 2, y - 9.5, w, 19);
     ctx.fill();
     ctx.fillStyle = strong ? '#fffdf6' : '#3a342d';
     ctx.fillText(text, x, y + 0.5);
